@@ -1602,7 +1602,7 @@ namespace Microsoft.ML.Probabilistic.Models
         /// contains more than two <c>Range</c> objects.</exception>
         public static IVariableArray Array<T>(IList<Range> ranges)
         {
-            if (ranges.Count == 0) throw new ArgumentException("Range list is empty.",nameof(ranges));
+            if (ranges.Count == 0) throw new ArgumentException("Range list is empty.", nameof(ranges));
             else if (ranges.Count == 1) return Variable.Array<T>(ranges[0]);
             else if (ranges.Count == 2) return Variable.Array<T>(ranges[0], ranges[1]);
             else throw new NotSupportedException("More than two ranges were specified, high rank arrays are not yet supported.");
@@ -3292,7 +3292,17 @@ namespace Microsoft.ML.Probabilistic.Models
                     sumUpTo[i] = sumUpTo[i - 1] + array[i];
                 }
             }
-            var sum = Variable.Copy(sumUpTo[((Variable<int>)n.Size) - 1]);
+            var size = (Variable<int>)n.Size;
+            var sizeIsZero = (size == 0);
+            var sum = Variable.New<double>();
+            using (Variable.If(sizeIsZero))
+            {
+                sum.SetTo(Variable.Constant(0.0));
+            }
+            using (Variable.IfNot(sizeIsZero))
+            {
+                sum.SetTo(Variable.Copy(sumUpTo[size - 1]));
+            }
             ReverseAndCloseBlocks(blocks);
             return sum;
         }
@@ -5560,7 +5570,7 @@ namespace Microsoft.ML.Probabilistic.Models
                 MethodInfo method = type.GetMethod("CreateVariableArrayFromItem", BindingFlags.NonPublic | BindingFlags.Static);
                 return (IVariableArray)Util.Invoke(method, null, array, headRanges);
             }
-            
+
             Variable<T> itemPrototype = (Variable<T>)item.Clone();
 
             VariableArray<T> variableArray = new VariableArray<T>(itemPrototype, ranges[0]);
