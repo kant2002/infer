@@ -231,7 +231,9 @@ namespace Microsoft.ML.Probabilistic.Collections
         object IEnumerator.Current => this.Current;
 
         /// <inheritdoc/>
-        void IEnumerator.Reset()
+        void IEnumerator.Reset() => this.Reset();
+
+        public void Reset()
         {
             this.pointer = this.begin - 1;
         }

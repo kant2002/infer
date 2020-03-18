@@ -430,16 +430,18 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                         Debug.Assert(
                             transition.DestinationStateIndex < resultStates.Count,
                             "Destination indexes must be in valid range");
+                        transition.DestinationStateIndex -= i;
                         resultTransitions[nextResultTransitionIndex] = transition;
                         ++nextResultTransitionIndex;
                         hasEpsilonTransitions = hasEpsilonTransitions || transition.IsEpsilon;
                         usesGroups = usesGroups || (transition.Group != 0);
 
-                        if (transition.DestinationStateIndex == i)
+                        // At this point destination state index is alread relative to current state
+                        if (transition.DestinationStateIndex == 0)
                         {
                             hasSelfLoops = true;
                         }
-                        else if (transition.DestinationStateIndex < i)
+                        else if (transition.DestinationStateIndex < 0)
                         {
                             hasOnlyForwardTransitions = false;
                         }
