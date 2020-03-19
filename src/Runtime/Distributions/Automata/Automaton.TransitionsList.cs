@@ -85,7 +85,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     get
                     {
                         var result = this.enumerator.Current;
-                        result.DestinationStateIndex -= this.baseStateIndex;
+                        result.DestinationStateIndex += this.baseStateIndex;
                         return result;
                     }
                 }

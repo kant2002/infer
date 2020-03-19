@@ -2667,7 +2667,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     }
                 }
 
-                if (!TryMoveTo(this.Data.Transitions[current.TransitionIndex].DestinationStateIndex))
+                var nextState = current.StateIndex + this.Data.Transitions[current.TransitionIndex].DestinationStateIndex;
+
+                if (!TryMoveTo(nextState))
                 {
                     // Found a loop, signal that automaton is not enumerable
                     this.Data = this.Data.With(isEnumerable: false);

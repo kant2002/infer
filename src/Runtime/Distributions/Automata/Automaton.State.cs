@@ -57,11 +57,13 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// </summary>
             public bool CanEnd => this.Data.CanEnd;
 
-            public ImmutableArraySegment<Transition> Transitions =>
-                new ImmutableArraySegment<Transition>(
-                    this.transitions,
-                    this.Data.FirstTransitionIndex,
-                    this.Data.TransitionsCount);
+            public TransitionsList Transitions =>
+                new TransitionsList(
+                    this.Index,
+                    new ImmutableArraySegment<Transition>(
+                        this.transitions,
+                        this.Data.FirstTransitionIndex,
+                        this.Data.TransitionsCount));
 
             internal StateData Data => this.states[this.Index];
 
