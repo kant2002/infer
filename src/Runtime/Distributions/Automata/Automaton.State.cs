@@ -60,10 +60,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public TransitionsList Transitions =>
                 new TransitionsList(
                     this.Index,
-                    new ImmutableArraySegment<Transition>(
-                        this.transitions,
-                        this.Data.FirstTransitionIndex,
-                        this.Data.TransitionsCount));
+                    this.transitions,
+                    this.Data.FirstTransitionIndex,
+                    this.Data.TransitionsCount);
 
             internal StateData Data => this.states[this.Index];
 
@@ -131,7 +130,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public void Write(Action<double> writeDouble, Action<int> writeInt32, Action<TElementDistribution> writeElementDistribution)
             {
                 this.EndWeight.Write(writeDouble);
-                writeInt32(this.Index);
                 writeInt32(this.Transitions.Count);
                 foreach (var transition in this.Transitions)
                 {
@@ -140,26 +138,15 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             }
 
             /// <summary>
-            /// Reads state and appends it into Automaton builder. Returns index in the serialized data.
-            /// If <paramref name="checkIndex"/> is true, will throw exception if serialized index
-            /// does not match index in deserialized states array. This check is bypassed only when
-            /// start state is serialized second time.
+            /// Reads state and appends it into Automaton builder.
             /// </summary>
-            public static int ReadTo(
+            public static void ReadTo(
                 ref Builder builder,
                 Func<int> readInt32,
                 Func<double> readDouble,
-                Func<TElementDistribution> readElementDistribution,
-                bool checkIndex = false)
+                Func<TElementDistribution> readElementDistribution)
             {
                 var endWeight = Weight.Read(readDouble);
-                // Note: index is serialized for compatibility with old binary serializations
-                var index = readInt32();
-
-                if (checkIndex && index != builder.StatesCount)
-                {
-                    throw new Exception("Index in serialized data does not match index in deserialized array");
-                }
 
                 var state = builder.AddState();
                 state.SetEndWeight(endWeight);
@@ -169,8 +156,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 {
                     state.AddTransition(Transition.Read(readInt32, readDouble, readElementDistribution));
                 }
-
-                return index;
             }
 
             #endregion

@@ -158,6 +158,10 @@ namespace Microsoft.ML.Probabilistic.Collections
         /// <inheritdoc/>
         public int Count => this.length;
 
+        public ImmutableArray<T> BaseArray() => this.array;
+
+        public int BaseIndex => this.begin;
+
         /// <summary>
         /// Returns enumerator over elements of array.
         /// </summary>

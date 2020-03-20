@@ -7,12 +7,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Runtime.Serialization;
-    using System.Text;
 
     using Microsoft.ML.Probabilistic.Collections;
-    using Microsoft.ML.Probabilistic.Serialization;
-    using Microsoft.ML.Probabilistic.Utilities;
 
     /// <content>
     /// TODO
@@ -22,14 +18,20 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         public struct TransitionsList : IReadOnlyList<Transition>
         {
             private readonly int baseStateIndex;
-            private readonly ImmutableArraySegment<Transition> transitions;
+            private readonly ImmutableArray<Transition> transitions;
+            private readonly int firstTransitionIndex;
+            private readonly int transitionsCount;
 
             public TransitionsList(
                 int baseStateIndex,
-                ImmutableArraySegment<Transition> transitions)
+                ImmutableArray<Transition> transitions,
+                int firstTransitionIndex,
+                int transitionsCount)
             {
                 this.baseStateIndex = baseStateIndex;
                 this.transitions = transitions;
+                this.firstTransitionIndex = firstTransitionIndex;
+                this.transitionsCount = transitionsCount;
             }
 
             /// <inheritdoc/>
@@ -37,14 +39,14 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             {
                 get
                 {
-                    var result = this.transitions[index];
+                    var result = this.transitions[this.firstTransitionIndex + index];
                     result.DestinationStateIndex += this.baseStateIndex;
                     return result;
                 }
             }
 
             /// <inheritdoc/>
-            public int Count => this.transitions.Count;
+            public int Count => this.transitionsCount;
 
             public TransitionsEnumerator GetEnumerator() =>
                 new TransitionsEnumerator(this);
@@ -60,7 +62,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public struct TransitionsEnumerator : IEnumerator<Transition>
             {
                 private readonly int baseStateIndex;
-                private ImmutableArraySegmentEnumerator<Transition> enumerator;
+                private readonly ImmutableArray<Transition> transitions;
+                private readonly int endIndex;
+                private int pointer;
 
                 /// <summary>
                 /// Initializes a new instance of <see cref="ImmutableArraySegment{T}"/> structure.
@@ -68,7 +72,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 internal TransitionsEnumerator(TransitionsList list)
                 {
                     this.baseStateIndex = list.baseStateIndex;
-                    this.enumerator = list.transitions.GetEnumerator();
+                    this.transitions = list.transitions;
+                    this.endIndex = list.firstTransitionIndex + list.transitionsCount;
+                    this.pointer = list.firstTransitionIndex - 1;
                 }
 
                 /// <inheritdoc/>
@@ -77,14 +83,14 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 }
 
                 /// <inheritdoc/>
-                public bool MoveNext() => this.enumerator.MoveNext();
+                public bool MoveNext() => ++this.pointer < this.endIndex;
 
                 /// <inheritdoc/>
                 public Transition Current
                 {
                     get
                     {
-                        var result = this.enumerator.Current;
+                        var result = this.transitions[this.pointer];
                         result.DestinationStateIndex += this.baseStateIndex;
                         return result;
                     }
@@ -94,7 +100,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 object IEnumerator.Current => this.Current;
 
                 /// <inheritdoc/>
-                void IEnumerator.Reset() => this.enumerator.Reset();
+                void IEnumerator.Reset() => throw new NotSupportedException();
             }
         }
     }

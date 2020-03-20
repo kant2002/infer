@@ -2817,11 +2817,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         {
             var propertyMask = new BitVector32();
             var idx = 0;
-            propertyMask[1 << idx++] = true; // isEpsilonFree is always known
-            propertyMask[1 << idx++] = this.Data.IsEpsilonFree;
             propertyMask[1 << idx++] = this.LogValueOverride.HasValue;
             propertyMask[1 << idx++] = this.PruneStatesWithLogEndWeightLessThan.HasValue;
-            propertyMask[1 << idx++] = true; // start state is always serialized
 
             writeInt32(propertyMask.Data);
 
@@ -2835,10 +2832,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 writeDouble(this.PruneStatesWithLogEndWeightLessThan.Value);
             }
 
-            // This state is serialized only for its index.
-            this.Start.Write(writeDouble, writeInt32, writeElementDistribution);
-
             writeInt32(this.States.Count);
+            writeInt32(this.Start.Index);
             foreach (var state in this.States)
             {
                 state.Write(writeDouble, writeInt32, writeElementDistribution);
@@ -2858,11 +2853,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             var res = new TThis();
             var idx = 0;
             // Serialized "isEpsilonFree" is not used. Will be taken from builder anyway
-            var hasEpsilonFreeIgnored = propertyMask[1 << idx++];
-            var isEpsilonFreeIgnored = propertyMask[1 << idx++];
             var hasLogValueOverride = propertyMask[1 << idx++];
             var hasPruneWeights = propertyMask[1 << idx++];
-            var hasStartState = propertyMask[1 << idx++];
 
             if (hasLogValueOverride)
             {
@@ -2876,16 +2868,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
             var builder = new Builder(0);
 
-            if (hasStartState)
-            {
-                // Start state is also present in the list of all states, so read it into temp builder where
-                // it will get index 0. But keep real deserialized start state index to be used in real builder
-                var tempBuilder = new Builder(0);
-                builder.StartStateIndex =
-                    State.ReadTo(ref tempBuilder, readInt32, readDouble, readElementDistribution, checkIndex: false);
-            }
-
             var numStates = readInt32();
+            builder.StartStateIndex = readInt32();
 
             for (var i = 0; i < numStates; i++)
             {
