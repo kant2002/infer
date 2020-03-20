@@ -187,11 +187,6 @@ namespace Microsoft.ML.Probabilistic.Collections
         private readonly ImmutableArray<T> array;
 
         /// <summary>
-        /// Index of the first element which belongs segment begin enumerated.
-        /// </summary>
-        private readonly int begin;
-
-        /// <summary>
         /// Index of the first element which does not belong segment begin enumerated.
         /// </summary>
         private readonly int end;
@@ -207,7 +202,6 @@ namespace Microsoft.ML.Probabilistic.Collections
         internal ImmutableArraySegmentEnumerator(ImmutableArray<T> array, int begin, int end)
         {
             this.array = array;
-            this.begin = begin;
             this.end = end;
             this.pointer = begin - 1;
         }
@@ -233,10 +227,7 @@ namespace Microsoft.ML.Probabilistic.Collections
         /// <inheritdoc/>
         void IEnumerator.Reset() => this.Reset();
 
-        public void Reset()
-        {
-            this.pointer = this.begin - 1;
-        }
+        public void Reset() => throw new NotSupportedException();
     }
 
     public static class ImmutableArray

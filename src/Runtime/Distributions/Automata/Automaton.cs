@@ -1940,12 +1940,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// <remarks>Recursive implementation would be simpler but prone to stack overflows with large automata</remarks>
         public TSequence TryComputePoint()
         {
-            var isEndNodeReachable = this.ComputeEndStateReachability();
-            if (!isEndNodeReachable[this.Start.Index])
-            {
-                return null;
-            }
-
             var point = new List<TElement>();
             int? pointLength = null;
             var stateDepth = new ArrayDictionary<int>(this.States.Count);
@@ -1960,7 +1954,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             while (stack.Count != 0)
             {
                 var (stateIndex, sequencePos) = stack.Pop();
-                Debug.Assert(isEndNodeReachable[stateIndex], "Dead branches must not be visited.");
 
                 if (stateDepth.TryGetValue(stateIndex, out var cachedStateDepth))
                 {
@@ -1999,11 +1992,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 foreach (var transition in state.Transitions)
                 {
                     var destStateIndex = transition.DestinationStateIndex;
-                    if (!isEndNodeReachable[destStateIndex])
-                    {
-                        // Only walk through the accepting part of the automaton
-                        continue;
-                    }
 
                     if (transition.IsEpsilon)
                     {
@@ -2110,7 +2098,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// <returns><see langword="true"/> if this automaton is equal to <paramref name="obj"/>, false otherwise.</returns>
         public override bool Equals(object obj)
         {
-            if (obj == null || GetType() != obj.GetType())
+            if (obj == null || this.GetType() != obj.GetType())
             {
                 return false;
             }
