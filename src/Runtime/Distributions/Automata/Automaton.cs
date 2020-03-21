@@ -1790,7 +1790,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 var otherState = sourceAutomaton.States[stateIndex];
 
                 thisState.SetEndWeight(otherState.EndWeight);
-                if (otherState == sourceAutomaton.Start)
+                if (otherState.Index == sourceAutomaton.Start.Index)
                 {
                     builder.StartStateIndex = thisState.Index;
                 }

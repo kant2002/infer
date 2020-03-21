@@ -17,7 +17,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// <summary>
         /// Represents a reference to a state of automaton for exposure in public API.
         /// </summary>
-        public struct State : IEquatable<State>
+        public struct State
         {
             private readonly ImmutableArray<StateData> states;
 
@@ -54,27 +54,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     this.Data.Transitions.Count);
 
             internal StateData Data => this.states[this.Index];
-
-            /// <summary>
-            /// Compares 2 states for equality.
-            /// </summary>
-            public static bool operator ==(State a, State b) => a.Index == b.Index;
-
-            /// <summary>
-            /// Compares 2 states for inequality.
-            /// </summary>
-            public static bool operator !=(State a, State b) => !(a == b);
-
-            /// <summary>
-            /// Compares 2 states for equality.
-            /// </summary>
-            public bool Equals(State that) => this == that;
-
-            /// <inheritdoc/>
-            public override bool Equals(object obj) => obj is State that && this.Equals(that);
-
-            /// <inheritdoc/>
-            public override int GetHashCode() => this.Data.GetHashCode();
 
             /// <summary>
             /// Returns a string that represents the state.
