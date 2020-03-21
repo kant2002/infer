@@ -17,7 +17,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// </summary>
         [Serializable]
         [DataContract]
-        internal class StateData
+        public class StateData
         {
             [DataMember]
             public ImmutableArraySegment<Transition> Transitions { get; }

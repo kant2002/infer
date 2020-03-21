@@ -148,6 +148,13 @@ namespace Microsoft.ML.Probabilistic.Collections
             this.length = length;
         }
 
+        [Construction("CloneArray")]
+        public static ImmutableArraySegment<T> CreateCopy(IEnumerable<T> sequence)
+        {
+            var array = ImmutableArray<T>.CreateCopy(sequence);
+            return array.Segment(0, array.Count);
+        }
+
         /// <inheritdoc/>
         public T this[int index]
         {
@@ -164,6 +171,17 @@ namespace Microsoft.ML.Probabilistic.Collections
         public ImmutableArray<T> BaseArray => this.array;
 
         public int BaseIndex => this.begin;
+
+        public T[] CloneArray()
+        {
+            var result = new T[this.Count];
+            for (var i = 0; i < this.Count; ++i)
+            {
+                result[i] = this[i];
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Returns enumerator over elements of array.

@@ -123,7 +123,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Immutable container for automaton data - states and transitions.
         /// </summary>
         [DataMember]
-        internal DataContainer Data { get; set; }
+        public DataContainer Data { get; set; }
 
         /// <summary>
         /// Gets the sequence manipulator.
@@ -230,7 +230,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// The created automaton.
         /// </returns>
         [Construction("Data")]
-        internal static TThis FromData(DataContainer data)
+        public static TThis FromData(DataContainer data)
         {
             if (!data.IsConsistent())
             {
