@@ -39,7 +39,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             #region IReadOnlyList<State> methods
 
             /// <inheritdoc/>
-            public State this[int index] => new State(this.states, index);
+            public State this[int index] => new State(this.states[index], index);
 
             /// <inheritdoc/>
             public int Count => this.states.Count;

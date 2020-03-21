@@ -19,15 +19,13 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// </summary>
         public struct State
         {
-            private readonly ImmutableArray<StateData> states;
-
             /// <summary>
             /// Initializes a new instance of <see cref="State"/> class. Used internally by automaton implementation
             /// to wrap StateData for use in public Automaton APIs.
             /// </summary>
-            internal State(ImmutableArray<StateData> states, int index)
+            internal State(StateData data, int index)
             {
-                this.states = states;
+                this.Data = data;
                 this.Index = index;
             }
 
@@ -35,6 +33,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// Gets the index of the state.
             /// </summary>
             public int Index { get; }
+
+            internal StateData Data { get; }
 
             /// <summary>
             /// Gets the ending weight of the state.
@@ -52,8 +52,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     this.Data.Transitions.BaseArray,
                     this.Data.Transitions.BaseIndex,
                     this.Data.Transitions.Count);
-
-            internal StateData Data => this.states[this.Index];
 
             /// <summary>
             /// Returns a string that represents the state.
