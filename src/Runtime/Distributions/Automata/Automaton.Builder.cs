@@ -26,9 +26,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// Transitions created so far.
             /// </summary>
             /// <remarks>
-            /// Unlike in <see cref="StateCollection.transitions"/>, transitions
-            /// for single entity are not represented by contiguous segment of array, but rather as a linked
-            /// list. It is done this way, because transitions can be added at any moment and inserting
+            /// Transitions are represented as a linked list.
+            /// It is done this way, because transitions can be added at any moment and inserting
             /// transition into a middle of array is not feasible.
             /// </remarks>
             private readonly List<LinkedTransitionNode> transitions;

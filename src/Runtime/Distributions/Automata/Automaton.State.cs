@@ -17,28 +17,17 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// <summary>
         /// Represents a reference to a state of automaton for exposure in public API.
         /// </summary>
-        /// <remarks>
-        /// Acts as a "fat reference" to state in automaton. In addition to reference to actual
-        /// StateData it carries 2 additional properties for convenience: <see cref="Index"/>
-        /// of the state and full <see cref="transitions"/> table.
-        /// </remarks>
         public struct State : IEquatable<State>
         {
             private readonly ImmutableArray<StateData> states;
-
-            private readonly ImmutableArray<Transition> transitions;
 
             /// <summary>
             /// Initializes a new instance of <see cref="State"/> class. Used internally by automaton implementation
             /// to wrap StateData for use in public Automaton APIs.
             /// </summary>
-            internal State(
-                ImmutableArray<StateData> states,
-                ImmutableArray<Transition> transitions,
-                int index)
+            internal State(ImmutableArray<StateData> states, int index)
             {
                 this.states = states;
-                this.transitions = transitions;
                 this.Index = index;
             }
 

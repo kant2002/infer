@@ -29,9 +29,12 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         {
             get
             {
-                return this.States.transitions.Any(
-                    trans => trans.ElementDistribution.HasValue &&
-                             trans.ElementDistribution.Value.HasLogProbabilityOverride);
+                return this.States
+                    .SelectMany(it => it.Transitions)
+                    .Any(
+                        trans =>
+                            trans.ElementDistribution.HasValue &&
+                            trans.ElementDistribution.Value.HasLogProbabilityOverride);
             }
         }
 
