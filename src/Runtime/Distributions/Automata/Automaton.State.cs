@@ -60,9 +60,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public TransitionsList Transitions =>
                 new TransitionsList(
                     this.Index,
-                    this.transitions,
-                    this.Data.FirstTransitionIndex,
-                    this.Data.TransitionsCount);
+                    this.Data.Transitions.BaseArray,
+                    this.Data.Transitions.BaseIndex,
+                    this.Data.Transitions.Count);
 
             internal StateData Data => this.states[this.Index];
 

@@ -6,7 +6,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 {
     using System;
     using System.Runtime.Serialization;
-
+    using Microsoft.ML.Probabilistic.Collections;
     using Microsoft.ML.Probabilistic.Serialization;
 
     public abstract partial class Automaton<TSequence, TElement, TElementDistribution, TSequenceManipulator, TThis>
@@ -17,42 +17,24 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// </summary>
         [Serializable]
         [DataContract]
-        public class StateData
+        internal class StateData
         {
-            /// <summary>
-            /// Gets or sets index of the first transition from this state in <see cref="DataContainer.Transitions"/>
-            /// array. All transitions for the same state are stored as a contiguous block.
-            /// </summary>
-            /// <remarks>
-            /// During automaton construction <see cref="Automaton{TSequence,TElement,TElementDistribution,TSequenceManipulator,TThis}.Builder"/>
-            /// stores transitions as linked-list instead of contiguous block. So, during construction
-            /// this property contains index of the head of the linked-list of transitions.
-            /// </remarks>
             [DataMember]
-            public int FirstTransitionIndex { get; internal set; }
-
-            /// <summary>
-            /// Gets or sets count of transition in <see cref="DataContainer.Transitions"/> after
-            /// <see cref="FirstTransitionIndex"/> which belong to this state. All transitions for
-            /// the same state are stored as a contiguous block.
-            /// </summary>
-            [DataMember]
-            public int TransitionsCount { get; internal set; }
+            public ImmutableArraySegment<Transition> Transitions { get; }
 
             /// <summary>
             /// Gets or sets ending weight of the state.
             /// </summary>
             [DataMember]
-            public Weight EndWeight { get; internal set; }
+            public Weight EndWeight { get; }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="StateData"/> struct.
             /// </summary>
-            [Construction("FirstTransitionIndex", "TransitionsCount", "EndWeight")]
-            public StateData(int firstTransitionIndex, int transitionsCount, Weight endWeight)
+            [Construction("Transitions", "EndWeight")]
+            public StateData(ImmutableArraySegment<Transition> transitions, Weight endWeight)
             {
-                this.FirstTransitionIndex = firstTransitionIndex;
-                this.TransitionsCount = transitionsCount;
+                this.Transitions = transitions;
                 this.EndWeight = endWeight;
             }
 

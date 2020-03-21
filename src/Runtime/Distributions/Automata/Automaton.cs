@@ -66,7 +66,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Cached states representation of states for zero automaton.
         /// </summary>
         private static readonly ImmutableArray<StateData> SingleState =
-            ImmutableArray.Create(new StateData(0, 0, Weight.Zero));
+            ImmutableArray.Create(new StateData(ImmutableArray<Transition>.Empty.Segment(0, 0), Weight.Zero));
 
         /// <summary>
         /// The maximum number of states an automaton can have.
@@ -123,7 +123,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Immutable container for automaton data - states and transitions.
         /// </summary>
         [DataMember]
-        public DataContainer Data { get; protected set; }
+        internal DataContainer Data { get; set; }
 
         /// <summary>
         /// Gets the sequence manipulator.
@@ -230,7 +230,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// The created automaton.
         /// </returns>
         [Construction("Data")]
-        public static TThis FromData(DataContainer data)
+        internal static TThis FromData(DataContainer data)
         {
             if (!data.IsConsistent())
             {
@@ -2703,11 +2703,12 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 }
 
                 var state = this.Data.States[index];
+                // FIXME: no direct 
                 current = new StateEnumerationState
                 {
                     StateIndex = index,
-                    TransitionIndex = state.FirstTransitionIndex - 1,
-                    RemainingTransitionsCount = state.TransitionsCount,
+                    TransitionIndex = state.Transitions.BaseIndex - 1,
+                    RemainingTransitionsCount = state.Transitions.Count,
                     PrefixLength = prefix.Count,
                 };
 

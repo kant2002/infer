@@ -61,6 +61,9 @@ namespace Microsoft.ML.Probabilistic.Collections
         /// </summary>
         public T[] CloneArray() => (T[])this.array.Clone();
 
+        public ImmutableArraySegment<T> Segment(int begin, int length) =>
+            new ImmutableArraySegment<T>(this, begin, length);
+
         /// <summary>
         /// Returns enumerator over elements of array.
         /// </summary>
@@ -158,7 +161,7 @@ namespace Microsoft.ML.Probabilistic.Collections
         /// <inheritdoc/>
         public int Count => this.length;
 
-        public ImmutableArray<T> BaseArray() => this.array;
+        public ImmutableArray<T> BaseArray => this.array;
 
         public int BaseIndex => this.begin;
 

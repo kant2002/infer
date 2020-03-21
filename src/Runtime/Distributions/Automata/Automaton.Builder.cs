@@ -401,7 +401,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// <summary>
             /// Stores built automaton in pre-allocated <see cref="Automaton{TSequence,TElement,TElementDistribution,TSequenceManipulator,TThis}"/> object.
             /// </summary>
-            public DataContainer GetData(bool? isDeterminized = null)
+            internal DataContainer GetData(bool? isDeterminized = null)
             {
                 if (this.StartStateIndex < 0 || this.StartStateIndex >= this.states.Count)
                 {
@@ -415,23 +415,24 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 var hasSelfLoops = false;
                 var hasOnlyForwardTransitions = true;
 
-                var resultStates = ImmutableArray.CreateBuilder<StateData>(this.states.Count);
-                var resultTransitions = ImmutableArray.CreateBuilder<Transition>(this.transitions.Count - this.numRemovedTransitions);
+                var resultStatesBuilder = ImmutableArray.CreateBuilder<StateData>(this.states.Count);
+                var resultTransitionsBuilder = ImmutableArray.CreateBuilder<Transition>(this.transitions.Count - this.numRemovedTransitions);
+                var firstTransitionPerState = new int[this.states.Count + 1];
                 var nextResultTransitionIndex = 0;
 
-                for (var i = 0; i < resultStates.Count; ++i)
+                for (var i = 0; i < resultStatesBuilder.Count; ++i)
                 {
-                    var firstResultTransitionIndex = nextResultTransitionIndex;
+                    firstTransitionPerState[i] = nextResultTransitionIndex;
                     var transitionIndex = this.states[i].FirstTransitionIndex;
                     while (transitionIndex != -1)
                     {
                         var node = this.transitions[transitionIndex];
                         var transition = node.Transition;
                         Debug.Assert(
-                            transition.DestinationStateIndex < resultStates.Count,
+                            transition.DestinationStateIndex < resultStatesBuilder.Count,
                             "Destination indexes must be in valid range");
                         transition.DestinationStateIndex -= i;
-                        resultTransitions[nextResultTransitionIndex] = transition;
+                        resultTransitionsBuilder[nextResultTransitionIndex] = transition;
                         ++nextResultTransitionIndex;
                         hasEpsilonTransitions = hasEpsilonTransitions || transition.IsEpsilon;
                         usesGroups = usesGroups || (transition.Group != 0);
@@ -448,16 +449,23 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                         transitionIndex = node.Next;
                     }
-
-                    resultStates[i] = new StateData(
-                        firstResultTransitionIndex,
-                        nextResultTransitionIndex - firstResultTransitionIndex,
-                        this.states[i].EndWeight);
                 }
 
+                
                 Debug.Assert(
-                    nextResultTransitionIndex == resultTransitions.Count,
+                    nextResultTransitionIndex == resultTransitionsBuilder.Count,
                     "number of copied transitions must match result array size");
+
+                firstTransitionPerState[this.states.Count] = nextResultTransitionIndex;
+
+                var resultTransitions = resultTransitionsBuilder.MoveToImmutable();
+
+                for (var i = 0; i < this.states.Count; ++i)
+                {
+                    resultStatesBuilder[i] = new StateData(
+                        resultTransitions.Segment(firstTransitionPerState[i], firstTransitionPerState[i+1] - firstTransitionPerState[i]),
+                        this.states[i].EndWeight);
+                }
 
                 // Detect two very common automata shapes
                 var isEnumerable =
@@ -467,8 +475,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                 return new DataContainer(
                     this.StartStateIndex,
-                    resultStates.MoveToImmutable(),
-                    resultTransitions.MoveToImmutable(),
+                    resultStatesBuilder.MoveToImmutable(),
+                    resultTransitions,
                     !hasEpsilonTransitions,
                     usesGroups,
                     isDeterminized,

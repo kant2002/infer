@@ -17,7 +17,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Immutable container for automaton data - states and transitions.
         /// </summary>
         [Serializable]
-        public struct DataContainer : ISerializable
+        internal struct DataContainer : ISerializable
         {
             /// <summary>
             /// Stores
@@ -141,6 +141,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                 foreach (var state in this.States)
                 {
+                    // FIXME
+                    /*
                     var lastTransitionIndex = state.FirstTransitionIndex + state.TransitionsCount;
                     if (state.FirstTransitionIndex < 0 || lastTransitionIndex > this.Transitions.Count)
                     {
@@ -161,6 +163,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                             isEpsilonFree = false;
                         }
                     }
+                    */
                 }
 
                 return this.IsEpsilonFree == isEpsilonFree;
