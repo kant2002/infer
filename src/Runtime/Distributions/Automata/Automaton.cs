@@ -2188,7 +2188,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
             this.Data = builder.GetData();
             this.LogValueOverride = automaton.LogValueOverride;
-            this.PruneStatesWithLogEndWeightLessThan = automaton.PruneStatesWithLogEndWeightLessThan;
+            this.PruneStatesWithLogEndWeightLessThan = automaton.LogValueOverride;
         }
 
         #endregion
@@ -2209,7 +2209,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 return automaton2.IsZero() ? double.NegativeInfinity : 1;
             }
 
-            TThis theConverger = GetConverger(new TThis[] {automaton1, automaton2});
+            TThis theConverger = GetConverger(automaton1, automaton2);
             var automaton1conv = automaton1.Product(theConverger);
             var automaton2conv = automaton2.Product(theConverger);
 
@@ -2243,20 +2243,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Gets an automaton such that every given automaton, if multiplied by it, becomes normalizable.
         /// </summary>
         /// <param name="automata">The automata.</param>
-        /// <param name="decayWeight">The decay weight.</param>
         /// <returns>An automaton, product with which will make every given automaton normalizable.</returns>
-        public static TThis GetConverger(TThis automata, double decayWeight = 0.99)
-        {
-            return GetConverger(new TThis[] {automata}, decayWeight);
-        }
-
-        /// <summary>
-            /// Gets an automaton such that every given automaton, if multiplied by it, becomes normalizable.
-            /// </summary>
-            /// <param name="automata">The automata.</param>
-            /// <param name="decayWeight">The decay weight.</param>
-            /// <returns>An automaton, product with which will make every given automaton normalizable.</returns>
-            public static TThis GetConverger(TThis[] automata, double decayWeight = 0.99)
+        public static TThis GetConverger(params TThis[] automata)
         {
             // TODO: This method might not work in the presense of non-trivial loops.
 
@@ -2292,7 +2280,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             Weight transitionWeight = Weight.Product(
                 Weight.FromLogValue(-uniformDist.GetLogAverageOf(uniformDist)),
                 Weight.FromLogValue(-maxLogTransitionWeightSum),
-                Weight.FromValue(decayWeight));
+                Weight.FromValue(0.99));
             theConverger.Start.AddSelfTransition(uniformDist, transitionWeight);
             theConverger.Start.SetEndWeight(Weight.One);
 
@@ -2768,8 +2756,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Reads an automaton from.
         /// </summary>
         /// <remarks>
-        /// Serialization format is a bit unnatural, but we do it for compatibility with old serialized data.
-        /// So we don't have to maintain 2 versions of deserialization.
+        /// Serializtion format is a bit unnatural, but we do it for compatiblity with old serialized data.
+        /// So we don't have to maintain 2 versions of derserialization
         /// </remarks>
         public static TThis Read(Func<double> readDouble, Func<int> readInt32, Func<TElementDistribution> readElementDistribution)
         {
