@@ -376,11 +376,14 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                 bool SecondStartStateHasIncomingTransitions()
                 {
-                    foreach (var transition in automaton.Data.Transitions)
+                    foreach (var state in automaton.States)
                     {
-                        if (transition.DestinationStateIndex == automaton.Data.StartStateIndex)
+                        foreach (var transition in state.Transitions)
                         {
-                            return true;
+                            if (transition.DestinationStateIndex == automaton.Data.StartStateIndex)
+                            {
+                                return true;
+                            }
                         }
                     }
 
@@ -475,7 +478,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 return new DataContainer(
                     this.StartStateIndex,
                     resultStatesBuilder.MoveToImmutable(),
-                    resultTransitions,
                     !hasEpsilonTransitions,
                     usesGroups,
                     isDeterminized,

@@ -1678,7 +1678,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             this.Data = new DataContainer(
                 0,
                 SingleState,
-                ImmutableArray<Transition>.Empty,
                 isEpsilonFree: true,
                 usesGroups: false,
                 isDeterminized: true,
@@ -1940,89 +1939,10 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// <remarks>Recursive implementation would be simpler but prone to stack overflows with large automata</remarks>
         public TSequence TryComputePoint()
         {
-            var point = new List<TElement>();
-            int? pointLength = null;
-            var stateDepth = new ArrayDictionary<int>(this.States.Count);
-            var stack = new Stack<(int stateIndex, int sequencePos)>();
-            stack.Push((this.Start.Index, 0));
-
-            // Note: this algorithm looks simpler if implemented recursively. But recursive implementation
-            // causes StackOverflowException.
-            // Algorithm is simple: traverse automaton id depth-first fashion and check that element transitions
-            // along all paths are equal. If any inconsistency is found
-
-            while (stack.Count != 0)
-            {
-                var (stateIndex, sequencePos) = stack.Pop();
-
-                if (stateDepth.TryGetValue(stateIndex, out var cachedStateDepth))
-                {
-                    // If we've already been in this state, we must be at the same sequence pos
-                    if (sequencePos != cachedStateDepth)
-                    {
-                        return null;
-                    }
-
-                    // This state was already processed, goto next one
-                    continue;
-                }
-
-                stateDepth.Add(stateIndex, sequencePos);
-
-                var state = this.States[stateIndex];
-
-                // Can we stop in this state?
-                if (state.CanEnd)
-                {
-                    // Is this a suffix or a prefix of the point already found?
-                    if (pointLength.HasValue)
-                    {
-                        if (sequencePos != pointLength.Value)
-                        {
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        // Now we know the length of the sequence
-                        pointLength = sequencePos;
-                    }
-                }
-
-                foreach (var transition in state.Transitions)
-                {
-                    var destStateIndex = transition.DestinationStateIndex;
-
-                    if (transition.IsEpsilon)
-                    {
-                        // Move to the next state, keep the sequence position
-                        stack.Push((destStateIndex, sequencePos));
-                    }
-                    else if (!transition.ElementDistribution.Value.IsPointMass)
-                    {
-                        // If there's non-point distribution on transition, than automaton doesn't have point either
-                        return null;
-                    }
-                    else
-                    {
-                        var element = transition.ElementDistribution.Value.Point;
-                        if (sequencePos == point.Count)
-                        {
-                            // It is the first time at this sequence position
-                            point.Add(element);
-                        }
-                        else if (!point[sequencePos].Equals(element))
-                        {
-                            // This is not the first time at this sequence position, and the elements are different
-                            return null;
-                        }
-
-                        stack.Push((destStateIndex, sequencePos + 1));
-                    }
-                }
-            }
-
-            return pointLength.HasValue ? SequenceManipulator.ToSequence(point) : null;
+            var enumerated = this.TryEnumerateSupport(1, out var support, tryDeterminize: false);
+            return enumerated && support.Count() == 1
+                ? support.Single()
+                : null;
         }
 
         /// <summary>
@@ -2569,6 +2489,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public int PrefixLength;
             public int TransitionIndex;
             public int RemainingTransitionsCount;
+            public TransitionsList Transitions;
             public IEnumerator<TElement> ElementEnumerator;
         }
 
@@ -2589,13 +2510,14 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
             var current = default(StateEnumerationState);
             TryMoveTo(this.Data.StartStateIndex);
-            if (this.States[current.StateIndex].CanEnd)
-            {
-                yield return SequenceManipulator.ToSequence(prefix);
-            }
 
             while (true)
             {
+                if (this.States[current.StateIndex].CanEnd)
+                {
+                    yield return SequenceManipulator.ToSequence(prefix);
+                }
+
                 // Backtrack while needed
                 while (current.ElementEnumerator == null && current.RemainingTransitionsCount == 0)
                 {
@@ -2631,43 +2553,44 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     ++current.TransitionIndex;
                     --current.RemainingTransitionsCount;
 
-                    var transition = this.Data.Transitions[current.TransitionIndex];
+                    var transition = current.Transitions[current.TransitionIndex];
 
                     if (!transition.IsEpsilon)
                     {
                         // Add next element to sequence
                         var elementDistribution = transition.ElementDistribution.Value;
-                        if (!(transition.ElementDistribution.Value is CanEnumerateSupport<TElement> supportEnumerator))
+                        if (elementDistribution.IsPointMass)
                         {
-                            throw new NotImplementedException(
-                                "Only point mass element distributions or distributions for which we can enumerate support are currently implemented");
+                            prefix.Add(elementDistribution.Point);
                         }
-
-                        var enumerator = supportEnumerator.EnumerateSupport().GetEnumerator();
-                        if (enumerator.MoveNext())
+                        else
                         {
-                            prefix.Add(enumerator.Current);
+                            if (!(elementDistribution is CanEnumerateSupport<TElement> supportEnumerator))
+                            {
+                                yield return null;
+                                yield break;
+                            }
+
+                            var enumerator = supportEnumerator.EnumerateSupport().GetEnumerator();
                             if (enumerator.MoveNext())
                             {
-                                current.ElementEnumerator = enumerator;
+                                prefix.Add(enumerator.Current);
+                                if (enumerator.MoveNext())
+                                {
+                                    current.ElementEnumerator = enumerator;
+                                }
                             }
                         }
                     }
                 }
 
-                var nextState = current.StateIndex + this.Data.Transitions[current.TransitionIndex].DestinationStateIndex;
-
+                var nextState = current.Transitions[current.TransitionIndex].DestinationStateIndex;
                 if (!TryMoveTo(nextState))
                 {
                     // Found a loop, signal that automaton is not enumerable
                     this.Data = this.Data.With(isEnumerable: false);
                     yield return null;
                     yield break;
-                }
-
-                if (this.States[current.StateIndex].CanEnd)
-                {
-                    yield return SequenceManipulator.ToSequence(prefix);
                 }
             }
 
@@ -2702,14 +2625,14 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     return false;
                 }
 
-                var state = this.Data.States[index];
-                // FIXME: no direct 
+                var state = this.States[index];
                 current = new StateEnumerationState
                 {
                     StateIndex = index,
-                    TransitionIndex = state.Transitions.BaseIndex - 1,
-                    RemainingTransitionsCount = state.Transitions.Count,
                     PrefixLength = prefix.Count,
+                    TransitionIndex = -1,
+                    RemainingTransitionsCount = state.Transitions.Count,
+                    Transitions = state.Transitions,
                 };
 
                 return true;

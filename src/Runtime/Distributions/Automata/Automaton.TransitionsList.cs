@@ -101,6 +101,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                 /// <inheritdoc/>
                 void IEnumerator.Reset() => throw new NotSupportedException();
+
+                // TODO: rethink!
+                public bool IsLast => this.pointer >= this.endIndex - 1;
             }
         }
     }

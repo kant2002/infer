@@ -34,11 +34,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// </summary>
             public readonly ImmutableArray<StateData> States;
 
-            /// <summary>
-            /// All automaton transitions. Transitions for the same state are stored as a contiguous block
-            /// inside this array.
-            /// </summary>
-            public readonly ImmutableArray<Transition> Transitions;
 
             /// <summary>
             /// Gets value indicating whether this automaton is epsilon-free.
@@ -81,11 +76,10 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// <summary>
             /// Initializes instance of <see cref="DataContainer"/>.
             /// </summary>
-            [Construction("StartStateIndex", "States", "Transitions", "IsEpsilonFree", "UsesGroups", "IsDeterminized", "IsZero", "IsEnumerable")]
+            [Construction("StartStateIndex", "States", "IsEpsilonFree", "UsesGroups", "IsDeterminized", "IsZero", "IsEnumerable")]
             public DataContainer(
                 int startStateIndex,
                 ImmutableArray<StateData> states,
-                ImmutableArray<Transition> transitions,
                 bool isEpsilonFree,
                 bool usesGroups,
                 bool? isDeterminized,
@@ -103,7 +97,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     (isEnumerable == true ? Flags.IsEnumerable : 0);
                 this.StartStateIndex = startStateIndex;
                 this.States = states;
-                this.Transitions = transitions;
             }
 
             public DataContainer With(
@@ -119,7 +112,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 return new DataContainer(
                     this.StartStateIndex,
                     this.States,
-                    this.Transitions,
                     this.IsEpsilonFree,
                     this.UsesGroups,
                     isDeterminized ?? this.IsDeterminized,
@@ -181,7 +173,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 this.flags = (Flags)info.GetValue(nameof(this.flags), typeof(Flags));
                 this.StartStateIndex = (int)info.GetValue(nameof(this.StartStateIndex), typeof(int));
                 this.States = ((StateData[])info.GetValue(nameof(this.States), typeof(StateData[]))).ToImmutableArray();
-                this.Transitions = ((Transition[])info.GetValue(nameof(this.Transitions), typeof(Transition[]))).ToImmutableArray();
 
                 if (!this.IsConsistent())
                 {
@@ -193,7 +184,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
             {
                 info.AddValue(nameof(this.States), this.States.CloneArray());
-                info.AddValue(nameof(this.Transitions), this.Transitions.CloneArray());
                 info.AddValue(nameof(this.StartStateIndex), this.StartStateIndex);
                 info.AddValue(nameof(this.flags), this.flags);
             }
