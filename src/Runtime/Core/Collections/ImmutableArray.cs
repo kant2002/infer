@@ -61,9 +61,6 @@ namespace Microsoft.ML.Probabilistic.Collections
         /// </summary>
         public T[] CloneArray() => (T[])this.array.Clone();
 
-        public ImmutableArraySegment<T> Segment(int begin, int length) =>
-            new ImmutableArraySegment<T>(this, begin, length);
-
         /// <summary>
         /// Returns enumerator over elements of array.
         /// </summary>
@@ -152,7 +149,7 @@ namespace Microsoft.ML.Probabilistic.Collections
         public static ImmutableArraySegment<T> CreateCopy(IEnumerable<T> sequence)
         {
             var array = ImmutableArray<T>.CreateCopy(sequence);
-            return array.Segment(0, array.Count);
+            return new ImmutableArraySegment<T>(array, 0, array.Count);
         }
 
         /// <inheritdoc/>

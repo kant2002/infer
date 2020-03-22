@@ -464,8 +464,10 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                 for (var i = 0; i < this.states.Count; ++i)
                 {
+                    int begin = firstTransitionPerState[i];
+                    int length = firstTransitionPerState[i+1] - firstTransitionPerState[i];
                     resultStatesBuilder[i] = new StateData(
-                        resultTransitions.Segment(firstTransitionPerState[i], firstTransitionPerState[i+1] - firstTransitionPerState[i]),
+                        new ImmutableArraySegment<Transition>(resultTransitions, begin, length),
                         this.states[i].EndWeight);
                 }
 
