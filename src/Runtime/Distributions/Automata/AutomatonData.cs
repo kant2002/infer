@@ -5,7 +5,7 @@
 namespace Microsoft.ML.Probabilistic.Distributions.Automata
 {
     public abstract partial class AutomatonData<TElement, TElementDistribution>
-        where TElementDistribution : IDistribution<TElement>, HasPoint<TElement>
+        where TElementDistribution : IDistribution<TElement>
     {
     }
 }

@@ -418,13 +418,42 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 var hasOnlyForwardTransitions = true;
 
                 var resultStatesBuilder = ImmutableArray.CreateBuilder<RelativeState>(this.states.Count);
-                var resultTransitionsBuilder = ImmutableArray.CreateBuilder<Transition>(this.transitions.Count - this.numRemovedTransitions);
+                var transitionsTableSize = this.transitions.Count - this.numRemovedTransitions;
+
+                // First try to use cached states for simple pointmass transitions
+                for (var i = 0; i < this.states.Count; ++i)
+                {
+                    var state = this.states[i];
+                    if (state.FirstTransitionIndex != -1 &&
+                        state.FirstTransitionIndex == state.LastTransitionIndex)
+                    {
+                        var transition = this.transitions[state.FirstTransitionIndex].Transition;
+                        if (transition.DestinationStateIndex == i + 1)
+                        {
+                            transition.DestinationStateIndex -= i;
+                            var relativeState = RelativeStatesCache.TryGetState(transition, state.EndWeight);
+                            if (relativeState != null)
+                            {
+                                resultStatesBuilder[i] = relativeState;
+                                --transitionsTableSize;
+                            }
+                        }
+                    }
+                }
+
+                var resultTransitionsBuilder = ImmutableArray.CreateBuilder<Transition>(transitionsTableSize);
                 var firstTransitionPerState = new int[this.states.Count + 1];
                 var nextResultTransitionIndex = 0;
 
-                for (var i = 0; i < resultStatesBuilder.Count; ++i)
+                for (var i = 0; i < this.states.Count; ++i)
                 {
                     firstTransitionPerState[i] = nextResultTransitionIndex;
+
+                    if (resultStatesBuilder[i] != null)
+                    {
+                        continue;
+                    }
+                    
                     var transitionIndex = this.states[i].FirstTransitionIndex;
                     while (transitionIndex != -1)
                     {
@@ -464,11 +493,14 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
 
                 for (var i = 0; i < this.states.Count; ++i)
                 {
-                    int begin = firstTransitionPerState[i];
-                    int length = firstTransitionPerState[i+1] - firstTransitionPerState[i];
-                    resultStatesBuilder[i] = new RelativeState(
-                        new ImmutableArraySegment<Transition>(resultTransitions, begin, length),
-                        this.states[i].EndWeight);
+                    if (resultStatesBuilder[i] == null)
+                    {
+                        var begin = firstTransitionPerState[i];
+                        var length = firstTransitionPerState[i + 1] - firstTransitionPerState[i];
+                        resultStatesBuilder[i] = new RelativeState(
+                            new ImmutableArraySegment<Transition>(resultTransitions, begin, length),
+                            this.states[i].EndWeight);
+                    }
                 }
 
                 // Detect two very common automata shapes
