@@ -17,7 +17,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// </summary>
         [Serializable]
         [DataContract]
-        public class UnindexedState
+        public class RelativeState
         {
             [DataMember]
             public ImmutableArraySegment<Transition> RelativeTransitions { get; }
@@ -29,10 +29,10 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public Weight EndWeight { get; }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="UnindexedState"/> struct.
+            /// Initializes a new instance of the <see cref="RelativeState"/> struct.
             /// </summary>
             [Construction("Transitions", "EndWeight")]
-            public UnindexedState(ImmutableArraySegment<Transition> relativeTransitions, Weight endWeight)
+            public RelativeState(ImmutableArraySegment<Transition> relativeTransitions, Weight endWeight)
             {
                 this.RelativeTransitions = relativeTransitions;
                 this.EndWeight = endWeight;
