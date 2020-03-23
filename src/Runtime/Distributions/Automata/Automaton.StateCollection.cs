@@ -18,7 +18,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// Represents a collection of automaton states for use in public APIs
         /// </summary>
         /// <remarks>
-        /// Is a thin wrapper around Automaton.data. Wraps each <see cref="StateData"/> into <see cref="State"/> on demand.
+        /// TODO xmldoc
+        /// Is a thin wrapper around Automaton.data. Wraps each see cref="StateData"/> into <see cref="State"/> on demand.
         /// </remarks>
         public struct StateCollection : IReadOnlyList<State>
         {

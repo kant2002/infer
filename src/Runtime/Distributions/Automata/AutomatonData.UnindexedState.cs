@@ -9,11 +9,11 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
     using Microsoft.ML.Probabilistic.Collections;
     using Microsoft.ML.Probabilistic.Serialization;
 
-    public abstract partial class Automaton<TSequence, TElement, TElementDistribution, TSequenceManipulator, TThis>
+    public abstract partial class AutomatonData<TElement, TElementDistribution>
     {
         /// <summary>
         /// Represents a state of an automaton that is stored in the Automaton.states. This is an internal representation
-        /// of the state. <see cref="State"/> struct should be used in public APIs.
+        /// of the state. TODO
         /// </summary>
         [Serializable]
         [DataContract]

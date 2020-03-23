@@ -849,8 +849,9 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             }
 
             /// <summary>
-            /// Version of <see cref="StateData"/> that is used during automaton constructions. Unlike
-            /// regular <see cref="StateData"/> transitions are stored as a linked list over
+            /// TODO xml comments
+            /// Version of see cref="AutomatonData"/> that is used during automaton constructions. Unlike
+            /// regular see cref="StateData"/> transitions are stored as a linked list over
             /// <see cref="Builder.transitions"/> array.
             /// </summary>
             private struct LinkedStateData
