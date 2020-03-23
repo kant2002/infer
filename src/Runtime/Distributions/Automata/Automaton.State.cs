@@ -23,7 +23,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// Initializes a new instance of <see cref="State"/> class. Used internally by automaton implementation
             /// to wrap StateData for use in public Automaton APIs.
             /// </summary>
-            internal State(UnindexedState data, int index)
+            internal State(RelativeState data, int index)
             {
                 this.Data = data;
                 this.Index = index;
@@ -34,7 +34,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// </summary>
             public int Index { get; }
 
-            internal UnindexedState Data { get; }
+            internal RelativeState Data { get; }
 
             /// <summary>
             /// Gets the ending weight of the state.
