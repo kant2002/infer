@@ -428,7 +428,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                         state.FirstTransitionIndex == state.LastTransitionIndex)
                     {
                         var transition = this.transitions[state.FirstTransitionIndex].Transition;
-                        if (transition.DestinationStateIndex == i + 1)
+                        if (transition.Group == 0 && transition.DestinationStateIndex == i + 1)
                         {
                             transition.DestinationStateIndex -= i;
                             var relativeState = RelativeStatesCache.TryGetState(transition, state.EndWeight);
@@ -453,7 +453,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     {
                         continue;
                     }
-                    
+
                     var transitionIndex = this.states[i].FirstTransitionIndex;
                     while (transitionIndex != -1)
                     {
@@ -482,7 +482,6 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                     }
                 }
 
-                
                 Debug.Assert(
                     nextResultTransitionIndex == resultTransitionsBuilder.Count,
                     "number of copied transitions must match result array size");
