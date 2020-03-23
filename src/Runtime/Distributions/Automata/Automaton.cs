@@ -65,8 +65,8 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// <summary>
         /// Cached states representation of states for zero automaton.
         /// </summary>
-        private static readonly ImmutableArray<StateData> SingleState =
-            ImmutableArray.Create(new StateData(new ImmutableArraySegment<Transition>(ImmutableArray<Transition>.Empty, 0, 0), Weight.Zero));
+        private static readonly ImmutableArray<UnindexedState> SingleState =
+            ImmutableArray.Create(new UnindexedState(new ImmutableArraySegment<Transition>(ImmutableArray<Transition>.Empty, 0, 0), Weight.Zero));
 
         /// <summary>
         /// The maximum number of states an automaton can have.

@@ -18,18 +18,18 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         public struct TransitionsList : IReadOnlyList<Transition>
         {
             private readonly int baseStateIndex;
-            private readonly ImmutableArray<Transition> transitions;
+            private readonly ImmutableArray<Transition> relativeTransitions;
             private readonly int firstTransitionIndex;
             private readonly int transitionsCount;
 
             public TransitionsList(
                 int baseStateIndex,
-                ImmutableArray<Transition> transitions,
+                ImmutableArray<Transition> relativeTransitions,
                 int firstTransitionIndex,
                 int transitionsCount)
             {
                 this.baseStateIndex = baseStateIndex;
-                this.transitions = transitions;
+                this.relativeTransitions = relativeTransitions;
                 this.firstTransitionIndex = firstTransitionIndex;
                 this.transitionsCount = transitionsCount;
             }
@@ -39,7 +39,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             {
                 get
                 {
-                    var result = this.transitions[this.firstTransitionIndex + index];
+                    var result = this.relativeTransitions[this.firstTransitionIndex + index];
                     result.DestinationStateIndex += this.baseStateIndex;
                     return result;
                 }
@@ -62,7 +62,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public struct TransitionsEnumerator : IEnumerator<Transition>
             {
                 private readonly int baseStateIndex;
-                private readonly ImmutableArray<Transition> transitions;
+                private readonly ImmutableArray<Transition> relativeTransitions;
                 private readonly int endIndex;
                 private int pointer;
 
@@ -72,7 +72,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 internal TransitionsEnumerator(TransitionsList list)
                 {
                     this.baseStateIndex = list.baseStateIndex;
-                    this.transitions = list.transitions;
+                    this.relativeTransitions = list.relativeTransitions;
                     this.endIndex = list.firstTransitionIndex + list.transitionsCount;
                     this.pointer = list.firstTransitionIndex - 1;
                 }
@@ -90,7 +90,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 {
                     get
                     {
-                        var result = this.transitions[this.pointer];
+                        var result = this.relativeTransitions[this.pointer];
                         result.DestinationStateIndex += this.baseStateIndex;
                         return result;
                     }

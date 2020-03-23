@@ -17,10 +17,10 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
         /// </summary>
         [Serializable]
         [DataContract]
-        public class StateData
+        public class UnindexedState
         {
             [DataMember]
-            public ImmutableArraySegment<Transition> Transitions { get; }
+            public ImmutableArraySegment<Transition> RelativeTransitions { get; }
 
             /// <summary>
             /// Gets or sets ending weight of the state.
@@ -29,12 +29,12 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             public Weight EndWeight { get; }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="StateData"/> struct.
+            /// Initializes a new instance of the <see cref="UnindexedState"/> struct.
             /// </summary>
             [Construction("Transitions", "EndWeight")]
-            public StateData(ImmutableArraySegment<Transition> transitions, Weight endWeight)
+            public UnindexedState(ImmutableArraySegment<Transition> relativeTransitions, Weight endWeight)
             {
-                this.Transitions = transitions;
+                this.RelativeTransitions = relativeTransitions;
                 this.EndWeight = endWeight;
             }
 

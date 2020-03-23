@@ -417,7 +417,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 var hasSelfLoops = false;
                 var hasOnlyForwardTransitions = true;
 
-                var resultStatesBuilder = ImmutableArray.CreateBuilder<StateData>(this.states.Count);
+                var resultStatesBuilder = ImmutableArray.CreateBuilder<UnindexedState>(this.states.Count);
                 var resultTransitionsBuilder = ImmutableArray.CreateBuilder<Transition>(this.transitions.Count - this.numRemovedTransitions);
                 var firstTransitionPerState = new int[this.states.Count + 1];
                 var nextResultTransitionIndex = 0;
@@ -466,7 +466,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 {
                     int begin = firstTransitionPerState[i];
                     int length = firstTransitionPerState[i+1] - firstTransitionPerState[i];
-                    resultStatesBuilder[i] = new StateData(
+                    resultStatesBuilder[i] = new UnindexedState(
                         new ImmutableArraySegment<Transition>(resultTransitions, begin, length),
                         this.states[i].EndWeight);
                 }
