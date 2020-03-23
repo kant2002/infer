@@ -5,12 +5,8 @@
 namespace Microsoft.ML.Probabilistic.Distributions.Automata
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Text;
 
-    using Microsoft.ML.Probabilistic.Collections;
 
     public abstract partial class Automaton<TSequence, TElement, TElementDistribution, TSequenceManipulator, TThis>
     {

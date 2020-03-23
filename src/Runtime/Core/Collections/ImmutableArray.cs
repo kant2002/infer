@@ -152,6 +152,9 @@ namespace Microsoft.ML.Probabilistic.Collections
             return new ImmutableArraySegment<T>(array, 0, array.Count);
         }
 
+        public static implicit operator ImmutableArraySegment<T>(ImmutableArray<T> array) =>
+            new ImmutableArraySegment<T>(array, 0, array.Count);
+
         /// <inheritdoc/>
         public T this[int index]
         {

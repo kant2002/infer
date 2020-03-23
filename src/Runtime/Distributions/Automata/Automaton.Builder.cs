@@ -33,7 +33,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             private readonly List<LinkedTransitionNode> transitions;
 
             /// <summary>
-            /// Number of transitions marked as removed. We maintain this count to calculate finaly transitions
+            /// Number of transitions marked as removed. We maintain this count to calculate final transitions
             /// array size without need to traverse all transitions.
             /// </summary>
             private int numRemovedTransitions = 0;
@@ -417,7 +417,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 var hasSelfLoops = false;
                 var hasOnlyForwardTransitions = true;
 
-                var resultStatesBuilder = ImmutableArray.CreateBuilder<UnindexedState>(this.states.Count);
+                var resultStatesBuilder = ImmutableArray.CreateBuilder<RelativeState>(this.states.Count);
                 var resultTransitionsBuilder = ImmutableArray.CreateBuilder<Transition>(this.transitions.Count - this.numRemovedTransitions);
                 var firstTransitionPerState = new int[this.states.Count + 1];
                 var nextResultTransitionIndex = 0;
@@ -466,7 +466,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
                 {
                     int begin = firstTransitionPerState[i];
                     int length = firstTransitionPerState[i+1] - firstTransitionPerState[i];
-                    resultStatesBuilder[i] = new UnindexedState(
+                    resultStatesBuilder[i] = new RelativeState(
                         new ImmutableArraySegment<Transition>(resultTransitions, begin, length),
                         this.states[i].EndWeight);
                 }

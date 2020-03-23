@@ -4,15 +4,8 @@
 
 namespace Microsoft.ML.Probabilistic.Distributions.Automata
 {
-    using System;
-    using System.Runtime.Serialization;
-    using System.Text;
-    using Microsoft.ML.Probabilistic.Collections;
-    using Microsoft.ML.Probabilistic.Serialization;
-    using Microsoft.ML.Probabilistic.Utilities;
-
     public abstract partial class AutomatonData<TElement, TElementDistribution>
-        where TElementDistribution : IDistribution<TElement>
+        where TElementDistribution : IDistribution<TElement>, HasPoint<TElement>
     {
     }
 }

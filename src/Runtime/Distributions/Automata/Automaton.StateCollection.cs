@@ -4,13 +4,10 @@
 
 namespace Microsoft.ML.Probabilistic.Distributions.Automata
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Microsoft.ML.Probabilistic.Collections;
-    using Microsoft.ML.Probabilistic.Utilities;
 
     public abstract partial class Automaton<TSequence, TElement, TElementDistribution, TSequenceManipulator, TThis>
     {
@@ -26,7 +23,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// <summary>
             /// Cached value of this.owner.Data.states. Cached for performance.
             /// </summary>
-            internal readonly ImmutableArray<UnindexedState> states;
+            internal readonly ImmutableArray<RelativeState> states;
 
             /// <summary>
             /// Initializes instance of <see cref="StateCollection"/>.

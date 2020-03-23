@@ -32,7 +32,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// <summary>
             /// All automaton states.
             /// </summary>
-            public readonly ImmutableArray<UnindexedState> States;
+            public readonly ImmutableArray<RelativeState> States;
 
 
             /// <summary>
@@ -79,7 +79,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             [Construction("StartStateIndex", "States", "IsEpsilonFree", "UsesGroups", "IsDeterminized", "IsZero", "IsEnumerable")]
             public DataContainer(
                 int startStateIndex,
-                ImmutableArray<UnindexedState> states,
+                ImmutableArray<RelativeState> states,
                 bool isEpsilonFree,
                 bool usesGroups,
                 bool? isDeterminized,
@@ -172,7 +172,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             {
                 this.flags = (Flags)info.GetValue(nameof(this.flags), typeof(Flags));
                 this.StartStateIndex = (int)info.GetValue(nameof(this.StartStateIndex), typeof(int));
-                this.States = ((UnindexedState[])info.GetValue(nameof(this.States), typeof(UnindexedState[]))).ToImmutableArray();
+                this.States = ((RelativeState[])info.GetValue(nameof(this.States), typeof(RelativeState[]))).ToImmutableArray();
 
                 if (!this.IsConsistent())
                 {
