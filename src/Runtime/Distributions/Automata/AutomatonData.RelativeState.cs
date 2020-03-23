@@ -31,7 +31,7 @@ namespace Microsoft.ML.Probabilistic.Distributions.Automata
             /// <summary>
             /// Initializes a new instance of the <see cref="RelativeState"/> struct.
             /// </summary>
-            [Construction("Transitions", "EndWeight")]
+            [Construction("RelativeTransitions", "EndWeight")]
             public RelativeState(ImmutableArraySegment<Transition> relativeTransitions, Weight endWeight)
             {
                 this.RelativeTransitions = relativeTransitions;
